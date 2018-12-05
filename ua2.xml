@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <account username="julia2@urjc.es" passwd="571845" />
+  <uaserver ip="127.0.0.1" puerto="3412" />
+  <rtpaudio puerto="1234" />
+  <regproxy ip="127.0.0.1" puerto="4321" />
+  <log path="ua2log.txt" />
+  <audio path="cancion.mp3" />
+</config>
