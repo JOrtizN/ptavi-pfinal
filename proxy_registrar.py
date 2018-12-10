@@ -30,16 +30,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             pass
 
     def handle(self):
-        """handle method of the server."""
-        IP = self.client_address[0]
-        PORT = self.client_address[1]
+        """handle method of the register."""
+        #sacar la ip y eso del dicc users y cuando coincida con lo que entra en el shell entra en el if
+        #IP = self.client_address[0]
+        #PORT = self.client_address[1]
         print("Registro de clientes:")
-
+        #if ip in self.dicc_users:
         for line in self.rfile:
             mensaje = line.decode('utf-8').split(" ")
             if (mensaje[0] == "REGISTER"):
                 user = mensaje[1].split(':')[1]
-                self.dicc_registers[user] = [IP]
+                self.dicc_register[user] = [IP]
                 self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
             elif (mensaje[0] == "EXPIRES:"):
                 EXPIRES = mensaje[1].split(':')[-1]
@@ -61,7 +62,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 del_registers = []
                 now = time.strftime('%Y-%m-%d %H:%M:%S',
                                     time.gmtime(time.time()))
-                for register in self.dicc_users:
+                for register in self.dicc_registers:
                     #mandar error 401 de autenticacion y despues le dejo registrarse si authentic
                     if self.dicc_registers[register][1] <= now:
                         del_registers.append(register)
@@ -73,8 +74,10 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 pass
 
             else:
-                self.wfile.write(b"Solo contemplamos la opcion REGISTER")
+                #self.wfile.write(b"Solo contemplamos la opcion REGISTER")
         print(self.dicc_registers)
+
+        #opcion regproxy
 
 
 if __name__ == "__main__":
