@@ -37,6 +37,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                        + b'\r\n\r\n')
         data = my_socket.recv(1024).decode('utf-8')
         print(data,"meter en el log esto que hago")
+        #autenticacion!!!
 
     if METHOD == "INVITE":
         S_PORT = Config['uaserver_puerto']
@@ -55,7 +56,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                     print(data.decode('utf-8'))
                 if r_dec[1] == "401":
                     print(data.decode('utf-8'))
-                    #leer el nonce y mandar con nonce
             except IndexError:
                 pass
 
