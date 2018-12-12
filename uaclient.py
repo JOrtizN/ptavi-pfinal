@@ -7,6 +7,7 @@ import sys
 import os
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
+from useragent import UserAgent
 METHOD = ""
 
 if len(sys.argv) == 4:
@@ -16,30 +17,30 @@ if len(sys.argv) == 4:
 else:
     sys.exit("Usage: python3 uaclient.py method opcion")
 
-    parser = make_parser()
-    sHandler = UserAgent()
-    parser.setContentHandler(sHandler)
-    #parser.parse(open('ua2.xml'))
-    parser.parse(open(ua))
-    Config = sHandler.get_tags()
+parser = make_parser()
+sHandler = UserAgent()
+parser.setContentHandler(sHandler)
+#parser.parse(open('ua2.xml'))
+parser.parse(open(ua))
+Config = sHandler.get_tags()
 
 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    try:
-        USER = Config['account_username'].split("@")[0]
-        PORT = int(5060)
-        my_socket.connect(("", PORT))
-        #my_socket.send(bytes(METHOD + " sip:" + USER + "@" + IP +
-        #                     " SIP/2.0", 'utf-8') + b'\r\n\r\n')
-    except IndexError:
-        sys.exit("Usage: Error in -> receiver@IP:SIPport <-")
-
+    if METHOD == "REGISTER":
+        print("reerer")
+        USER = Config['account_username']
+        IP = (Config['regproxy_ip'])
+        PORT = int(Config['regproxy_puerto'])
+        my_socket.connect((IP, PORT))
+        my_socket.send(bytes(METHOD + " sip:" + USER + " " + opcion + " SIP/2.0", 'utf-8')
+                       + b'\r\n\r\n')
+        data = my_socket.recv(1024).decode('utf-8')
+        print(data,"meter en el log esto que hago")
 
     if METHOD == "INVITE":
-
-        PROXY_PORT = Config['regproxy_puerto']
-        reciv = my_socket.recv(PROXY_PORT)
+        S_PORT = Config['uaserver_puerto']
+        reciv = my_socket.recv(S_PORT)
         r_dec = reciv.decode('utf-8').split()
         print(data.decode('utf-8'))
 
@@ -52,11 +53,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             try:
                 if r_dec[1] == "400" or r_dec[1] == "405":
                     print(data.decode('utf-8'))
-                except IndexError:
-                    pass
+                if r_dec[1] == "401":
+                    print(data.decode('utf-8'))
+                    #leer el nonce y mandar con nonce
+            except IndexError:
+                pass
+
 
         print("Terminando socket...")
 
-    if METHOD == "REGISTER":
+    else:
+        print("ni entra")
 
 print("Fin.")
