@@ -40,9 +40,12 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             if (mensaje[0] == "REGISTER"):
                 self.json2registered()
                 if ip in self.dicc_users:
-                    print("Usuario en clientes")
+                    print("Usuario en clientes, comprobando autenticacion...")
+                    #if lenth del mensaje 2 --->
+                    #self.wfile.write(b"SIP/2.0 401 Unauthorized\r\n\r\n")
+                    #else:
                     self.dicc_registers[ip] = [IP, PORT]
-                    self.wfile.write(b"SIP/2.0 401 Unauthorized\r\n\r\n")
+                    self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
                 if (mensaje[2] == '0'):
                     #print("CERO!BORRA")
                     if ip in self.dicc_registers:
@@ -72,7 +75,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             self.wfile.write(b"Solo contemplamos la opcion REGISTER")
         print("Registro de clientes:", self.dicc_registers)
 
-        #opcion regproxy para invite mirar  en el dicc_registers
+        #opcion regproxy para invite mirar  en el dicc_registers si está la ip
 
 
 if __name__ == "__main__":

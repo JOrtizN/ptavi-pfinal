@@ -1,43 +1,3 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-import socketserver
-import socket #uaclient
-import sys
-import os
-from xml.sax import make_parser
-from xml.sax.handler import ContentHandler
-
-
-if len(sys.argv) == 3:
-    ua = sys.argv[1]
-    #Config[]
-else:
-    sys.exit("Usage: python uaserver.py config")
-
-
-class UserAgent(ContentHandler):
-    """Sacar puertos e ips. """
-    def __init__(self):
-        """Diccionario"""
-        self.diccConfig = {"account":["username", "passwd"],
-                              "uaserver": ["ip","puerto"],
-                              "rtpaudio":["puerto"],
-                              "regproxy":["ip","puerto"],
-                              "log": ["path"],
-                              "audio": ["path"]}
-        self.Config = {}
-
-    def startElement(self, name, attrs):
-#print(self.Config)
-        if name in self.diccConfig:
-            print("hola")
-            for info in self.diccConfig[name]:
-                self.Config[name + '_' + info] = attrs.get(info, "")
-
-    def get_tags(self):
-        return self.Config
-
 class EchoHandler(socketserver.DatagramRequestHandler):
     """Echo server class."""
     if sys.argv[0] == "uaserver.py":
@@ -87,24 +47,9 @@ class EchoHandler(socketserver.DatagramRequestHandler):
 
 
 if __name__ == "__main__":
-
-    parser = make_parser()
-    sHandler = UserAgent()
-    parser.setContentHandler(sHandler)
-    #parser.parse(open('ua2.xml'))
-    parser.parse(open(ua))
-    Config = sHandler.get_tags()
-    #print(Config['account_username'])
-    IP = Config['uaserver_ip']
-    PORT = Config['uaserver_puerto']
-    f_audio = Config['audio_path']
-    METHOD = ""
-#UA server
-    serv = socketserver.UDPServer((IP, PORT), EchoHandler)
-    print("Listening...")
-    try:
-        serv.serve_forever()
-    except KeyboardInterrupt:
-        print("Finalizado servidor")
-
-    print("Fin.")
+serv = socketserver.UDPServer((IP, PORT), EchoHandler)
+  print("Listening...")
+  try:
+      serv.serve_forever()
+  except KeyboardInterrupt:
+      print("Finalizado servidor")
