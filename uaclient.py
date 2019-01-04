@@ -43,7 +43,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         IP = (Config['regproxy_ip'])
         PORT = int(Config['regproxy_puerto'])
         my_socket.connect((IP, PORT))
-        before = (METHOD + " sip:" + opc + " SIP/2.0" +
+        before = (METHOD + " sip:" + opc + " SIP/2.0\r\n" +
                   "Content-Type: application/sdp\r\n")
         my_socket.send(bytes((before + "v=0\r\n" + "o=" +
                               Config['account_username'] + " " +
@@ -74,7 +74,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
 
     if METHOD == "BYE":
         print("Se quiere despedir")
-        my_socket.send(bytes((METHOD + "sip:" + opc + " SIP/2.0\r\n"), 'utf-8'))
+        IP = (Config['regproxy_ip'])
+        PORT = int(Config['regproxy_puerto'])
+        my_socket.connect((IP, PORT))
+        my_socket.send(bytes((METHOD + " sip:" + opc + " SIP/2.0\r\n"), 'utf-8'))
         reciv = my_socket.recv(1024)
         print("Recibimos:", reciv.decode('utf-8'))
 
