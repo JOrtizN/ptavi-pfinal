@@ -35,17 +35,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         for line in self.rfile:
             if (line == b'\r\n'):
                 continue
+            print("ME LLEGA:", line.decode('utf-8'))
             mensaje = line.decode('utf-8').split(" ")
-            ip = mensaje[1].split(":")[1]
+            #print("MENSAJE", mensaje)
+            #ip = mensaje[1].split(":")[1]
             if (mensaje[0] == "REGISTER"):
+                ip = mensaje[1].split(":")[1]
                 self.json2registered()
                 if ip in self.dicc_users:
-                    print("Usuario en clientes, comprobando autenticacion...")
-                    #if lenth del mensaje 2 --->
-                    #self.wfile.write(b"SIP/2.0 401 Unauthorized\r\n\r\n")
-                    #else:
+                    print("Usuario en clientes")
                     self.dicc_registers[ip] = [IP, PORT]
-                    self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
+                    self.wfile.write(b"SIP/2.0 401 Unauthorized\r\n\r\n")
                 if (mensaje[2] == '0'):
                     #print("CERO!BORRA")
                     if ip in self.dicc_registers:
@@ -70,12 +70,16 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 for register in del_registers:
                     del self.dicc_registers[register]
                 self.register2json()
+            elif (mensaje[0] == "INVITE"):
+                #print("entras¿?")
+                self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
 
-        else:
-            self.wfile.write(b"Solo contemplamos la opcion REGISTER")
+            else:
+                #print("que haces aqui?")
+                self.wfile.write(b"Solo contemplamos la opcion REGISTER")
         print("Registro de clientes:", self.dicc_registers)
 
-        #opcion regproxy para invite mirar  en el dicc_registers si está la ip
+        #opcion regproxy para invite mirar  en el dicc_registers
 
 
 if __name__ == "__main__":
@@ -84,12 +88,12 @@ if __name__ == "__main__":
     if (len(sys.argv) == 2):
         UA = sys.argv[1]
     else:
-        sys.exit("Server MiServidorBigBang listening at port 5555...")
+        sys.exit("introduce ua")
 
     parser = make_parser()
     sHandler = UserAgent()
     parser.setContentHandler(sHandler)
-    parser.parse(open('pr.xml'))
+    parser.parse(open(UA))
     Config = sHandler.get_tags()
     IP = Config['server_ip']
     PORT = int(Config['server_puerto'])
