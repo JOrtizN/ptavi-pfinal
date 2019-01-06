@@ -5,6 +5,7 @@
 import socket
 import sys
 import os
+import hashlib
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from useragent import UserAgent
@@ -31,12 +32,25 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         USER = Config['account_username']
         IP = (Config['regproxy_ip'])
         PORT = int(Config['regproxy_puerto'])
+        PSW = (Config['account_passwd'])
         my_socket.connect((IP, PORT))
         my_socket.send(bytes(METHOD + " sip:" + USER + " " + opc + " SIP/2.0", 'utf-8')
                        + b'\r\n\r\n')
         data = my_socket.recv(1024).decode('utf-8')
         print(data,"meter en el log esto que hago")
         #autenticacion!!!
+        r_dec = data.split()
+        print(data.split())
+        if r_dec[1] == "401":
+            print("HOLA")
+            h = hashlib.md5()
+            nonce = r_dec[-1].split("=")[-1].split("\"")[1]
+            h.update(bytes(PSW, 'utf-8'))
+            h.update(bytes(nonce, 'utf-8'))
+            sm_nonce = ("REGISTER sip:" + USER + " " + opc +
+                        " SIP/2.0 " + "Authorization: " +
+                        "Digest responde=\"" + h.hexdigest() + "\"")
+            my_socket.send(bytes(sm_nonce, 'utf-8') + b'\r\n\r\n')
 
     if METHOD == "INVITE":
         print("Enviando invite...")
@@ -53,7 +67,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         print("INVITE enviado")
         reciv = my_socket.recv(1024)
         r_dec = reciv.decode('utf-8').split()
-        print(reciv.decode('utf-8'))
+        print(reciv.decode('utf-8'), "a ver si es:", r_dec)
 
         try:
             if r_dec[1] and "100" and r_dec[4] == "180" and r_dec[7] == "200":
@@ -64,9 +78,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                 r_dec = reciv.decode('utf-8').split()
                 try:
                     if r_dec[1] == "400" or r_dec[1] == "405":
-                        print(reciv.decode('utf-8'))
-                    if r_dec[1] == "401":
-                        print(reciv.decode('utf-8'))
+                        print("I", reciv.decode('utf-8'))
+                    if r_dec[1] == "404":
+                        print("H", reciv.decode('utf-8'))
                 except IndexError:
                     pass
         except IndexError:

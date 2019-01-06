@@ -3,18 +3,22 @@
 """Clase (y programa principal) para un servidor de eco en UDP simple."""
 
 import socketserver
+import socket
 import sys
 import json
 import time
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from useragent import UserAgent
+import hashlib
+import random
 
 
 class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """Echo server class."""
 
     dicc_registers = {}
+    inviteds = []
 
     def json2registered(self):
         """Si existe file_json lo pasa a mi diccionario."""
@@ -33,11 +37,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         IP = self.client_address[0]
         PORT = self.client_address[1]
         mensaje = []
-        for line in self.rfile:
-            if (line == b'\r\n'):
-                continue
-            mensaje.append(line.decode('utf-8'))
-            mensaje = " ".join(mensaje).split()
+        line = self.rfile.read()
+        if not line:
+            pass
+        mensaje.append(line.decode('utf-8'))
+        mensaje = " ".join(mensaje).split()
         print("LLEGA:", mensaje)
         if (mensaje[0] != "REGISTER" and mensaje[0] != "INVITE" and mensaje[0] != "BYE"):
             self.wfile.write(b"Solo contemplamos la opcion REGISTER e INVITE")
@@ -45,40 +49,76 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         if mensaje[0] == "REGISTER":
             ip = mensaje[1].split(":")[1]
             self.json2registered()
-            if ip in self.dicc_users:
-                print("Usuario en clientes")
-                self.dicc_registers[ip] = [IP, PORT]
-                self.wfile.write(b"SIP/2.0 401 Unauthorized\r\n\r\n")
-            if (mensaje[2] == '0'):
-                #print("CERO!BORRA")
-                if ip in self.dicc_registers:
-                    del self.dicc_registers[ip]
-                else:
-                    pass
-            elif (mensaje[2] != '0\r\n'):
-                register_date = time.time() + float(mensaje[2])
-                register_date = time.strftime('%Y-%m-%d %H:%M:%S',
-                                              time.gmtime(register_date))
-                now_date = time.strftime('%Y-%m-%d %H:%M:%S',
-                                         time.gmtime(time.time()))
-                self.dicc_registers[ip].append(register_date)
-                self.register2json()
+            #print("ver longitud:", mensaje, len(mensaje))
+            if len(mensaje) == 4:
+                nonce = random.randint(0,10**15)
+                if ip in self.dicc_users:
+                    print("Usuario en clientes")
+                    #self.dicc_registers[ip] = [IP, PORT]
+                    send_nonce = ("SIP/2.0 401 Unauthorized " + "WWW Authenticate: Digest nonce=\"" + str(nonce) + "\"\r\n")
+                    self.wfile.write(bytes(send_nonce,'utf-8'))
 
-            del_registers = []
-            now = time.strftime('%Y-%m-%d %H:%M:%S',
-                                time.gmtime(time.time()))
-            for register in self.dicc_registers:
-                if self.dicc_registers[register][2] <= now:
-                    del_registers.append(register)
-            for register in del_registers:
-                del self.dicc_registers[register]
-            self.register2json()
+                else:
+                    print("Usuario no encontrado")
+                    self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
+            else:
+                if ip in self.dicc_users:
+                    self.dicc_registers[ip] = [IP, PORT]
+                    try:
+                        psw = mensaje[-1].split("=")[-1]
+                        psw = psw.split("\"")[1]
+                        h = hashlib.sha224(bytes(self.dicc_users[ip], 'utf-8'))
+                        #h.update(bytes(self.dicc_users[ip]), 'utf-8')
+                        h.update(bytes(str(random.randint(0,10**15)), 'utf-8'))
+                        newpsw = h.hexdigest()
+                    #elif (mensaje[2] != '0\r\n'):
+                        if newpsw == psw:
+                            reg_date = time.time() + float(mensaje[2])
+                            reg_date = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                          time.gmtime(reg_date))
+                            now_date = time.strftime('%Y-%m-%d %H:%M:%S',
+                                                     time.gmtime(time.time()))
+                            self.dicc_registers[ip].append(reg_date)
+                            self.register2json()
+
+                        del_registers = []
+                        now = time.strftime('%Y-%m-%d %H:%M:%S',
+                                            time.gmtime(time.time()))
+                        for register in self.dicc_registers:
+                            if self.dicc_registers[register][2] <= now:
+                                del_registers.append(register)
+                        for register in del_registers:
+                            del self.dicc_registers[register]
+                        self.register2json()
+                    except IndexError:
+                        pass
+                    if (mensaje[2] == '0'):
+                        #print("CERO!BORRA")
+                        if ip in self.dicc_registers:
+                            del self.dicc_registers[ip]
+                        else:
+                            pass
         elif mensaje[0] == "INVITE":
             #comprueba si opc esta en los registrados
             #print(mensaje[1].split(":")[1], self.dicc_registers)
-            if mensaje[1].split(":")[1] in self.dicc_registers:
+            #inviteds = []
+            self.inviteds.append(mensaje[1].split(":")[1])
+            print(self.inviteds)
+            user = mensaje[1].split(":")[1]
+            if user in self.dicc_registers:
                 #mandar mensaje tal cual a server
-                self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
+                print(self.dicc_registers[user])
+                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+                    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    IP = (self.dicc_registers[user][0])
+                    PORT = int(self.dicc_registers[user][1])
+                    my_socket.connect((IP, PORT))
+                    my_socket.send(line)
+                    print("envidado a server")
+                #except:
+                #    print("no manda al server")
+
+                    #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         elif mensaje[0] == "BYE":
             self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         print("Registro de clientes:", self.dicc_registers)
