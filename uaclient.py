@@ -32,10 +32,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         USER = Config['account_username']
         IP = (Config['regproxy_ip'])
         PORT = int(Config['regproxy_puerto'])
+        S_PORT = str(Config['uaserver_puerto'])
         PSW = (Config['account_passwd'])
         my_socket.connect((IP, PORT))
-        my_socket.send(bytes(METHOD + " sip:" + USER + " " + opc + " SIP/2.0", 'utf-8')
-                       + b'\r\n\r\n')
+        my_socket.send(bytes(METHOD + " sip:" + USER + ":" + S_PORT + " "
+                       + opc + " SIP/2.0", 'utf-8') + b'\r\n\r\n')
         data = my_socket.recv(1024).decode('utf-8')
         print(data,"meter en el log esto que hago")
         #autenticacion!!!
@@ -47,22 +48,24 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             nonce = r_dec[-1].split("=")[-1].split("\"")[1]
             h.update(bytes(PSW, 'utf-8'))
             h.update(bytes(nonce, 'utf-8'))
-            sm_nonce = ("REGISTER sip:" + USER + " " + opc +
+            sm_nonce = ("REGISTER sip:" + USER + ":" + S_PORT + " " + opc +
                         " SIP/2.0 " + "Authorization: " +
                         "Digest responde=\"" + h.hexdigest() + "\"")
             my_socket.send(bytes(sm_nonce, 'utf-8') + b'\r\n\r\n')
 
     if METHOD == "INVITE":
         print("Enviando invite...")
+        USER = Config['account_username']
         IP = (Config['regproxy_ip'])
+        S_IP = Config['uaserver_ip']
         PORT = int(Config['regproxy_puerto'])
+        AUDIO_PORT = Config['rtpaudio_puerto']
         my_socket.connect((IP, PORT))
         before = (METHOD + " sip:" + opc + " SIP/2.0\r\n" +
                   "Content-Type: application/sdp\r\n")
         my_socket.send(bytes((before + "v=0\r\n" + "o=" +
-                              Config['account_username'] + " " +
-                              Config['uaserver_ip']+ "\r\n" + "s=PracticaFinal\r\n" +
-                              "t=0\r\n" + "m=audio " + Config['rtpaudio_puerto'] +
+                              USER + " " + S_IP + "\r\n" + "s=PracticaFinal\r\n"
+                              + "t=0\r\n" + "m=audio " + AUDIO_PORT +
                               " RTP\r\n"), 'utf-8'))
         print("INVITE enviado")
         reciv = my_socket.recv(1024)
@@ -78,9 +81,9 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                 r_dec = reciv.decode('utf-8').split()
                 try:
                     if r_dec[1] == "400" or r_dec[1] == "405":
-                        print("I", reciv.decode('utf-8'))
+                        print(reciv.decode('utf-8'))
                     if r_dec[1] == "404":
-                        print("H", reciv.decode('utf-8'))
+                        print(reciv.decode('utf-8'))
                 except IndexError:
                     pass
         except IndexError:

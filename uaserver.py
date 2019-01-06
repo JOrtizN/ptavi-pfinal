@@ -3,6 +3,7 @@
 """Clase (y programa principal) para un servidor de eco en UDP simple."""
 
 import socketserver
+import socket
 import sys
 import os
 from xml.sax import make_parser
@@ -19,6 +20,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
         for line in self.rfile:
             llega = line.decode('utf-8').split(" ")
             method = llega[0]
+            #IP = self.client_address[0]
+            #PORT = self.client_address[1]
 
             try:
                 arroba = llega[1].find("@") == -1
@@ -37,7 +40,12 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     break
 
                 if method == "INVITE":
-                    print("El cliente nos manda " + line.decode('utf-8'))
+                    print("El cliente nos manda: " + line.decode('utf-8'))
+                    #with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+                    #    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    #    IPC = (Config['regproxy_ip'])
+                    #    PORTC = int(Config['regproxy_puerto'])
+                    #    my_socket.connect((IPC, PORTC))
                     self.wfile.write(b"SIP/2.0 100 Trying\r\n\r\n")
                     self.wfile.write(b"SIP/2.0 180 Ringing\r\n\r\n")
                     self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
@@ -48,6 +56,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                                      "s=PracticaFinal" + "t=0\r\n" + "m=audio "
                                      + Config['rtpaudio_puerto'] + " RTP\r\n"),
                                      "utf-8"))
+                    print("Se supone todo enviado")
 
                 elif method == "ACK":
                     print("El cliente nos manda " + line.decode('utf-8'))
@@ -76,6 +85,12 @@ if __name__ == "__main__":
     parser.setContentHandler(sHandler)
     parser.parse(open(UA))
     Config = sHandler.get_tags()
+    #with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+    #    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    #    IPC = (Config['regproxy_ip'])
+    #    PORTC = int(Config['regproxy_puerto'])
+    #    my_socket.connect((IPC, PORTC))
+        #my_socket.send(b"HOLA SERVER")
     IP = Config['uaserver_ip']
     PORT = int(Config['uaserver_puerto'])
     serv = socketserver.UDPServer((IP, PORT), EchoHandler)
@@ -84,4 +99,4 @@ if __name__ == "__main__":
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
-        print
+        print("END SERVER")

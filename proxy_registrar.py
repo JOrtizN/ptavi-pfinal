@@ -18,7 +18,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """Echo server class."""
 
     dicc_registers = {}
-    inviteds = []
+    #inviteds = []
 
     def json2registered(self):
         """Si existe file_json lo pasa a mi diccionario."""
@@ -48,6 +48,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             #print("MENSAJE", mensaje)
         if mensaje[0] == "REGISTER":
             ip = mensaje[1].split(":")[1]
+            port = mensaje[1].split(":")[2]
             self.json2registered()
             #print("ver longitud:", mensaje, len(mensaje))
             if len(mensaje) == 4:
@@ -63,7 +64,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
             else:
                 if ip in self.dicc_users:
-                    self.dicc_registers[ip] = [IP, PORT]
+                    self.dicc_registers[ip] = [IP, port]
                     try:
                         psw = mensaje[-1].split("=")[-1]
                         psw = psw.split("\"")[1]
@@ -102,17 +103,20 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             #comprueba si opc esta en los registrados
             #print(mensaje[1].split(":")[1], self.dicc_registers)
             #inviteds = []
-            self.inviteds.append(mensaje[1].split(":")[1])
-            print(self.inviteds)
+            #self.inviteds.append(mensaje[1].split(":")[1])
+            #print(self.inviteds)
             user = mensaje[1].split(":")[1]
+            #port = mensaje[1].split(":")[2]
             if user in self.dicc_registers:
                 #mandar mensaje tal cual a server
-                print(self.dicc_registers[user])
+                print(self.dicc_registers[user], line)
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     IP = (self.dicc_registers[user][0])
                     PORT = int(self.dicc_registers[user][1])
+                    print(IP, PORT)
                     my_socket.connect((IP, PORT))
+                    #print("BIEN")
                     my_socket.send(line)
                     print("envidado a server")
                 #except:
@@ -121,7 +125,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         elif mensaje[0] == "BYE":
             self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
+        #print("Registro de clientes:", self.dicc_registers)
+        #elif mensaje[1] and "100" and mensaje[4] == "180" and mensaje[7] == "200":
+        #    print(IP, PORT)
         print("Registro de clientes:", self.dicc_registers)
+
 
         #opcion regproxy para invite mirar  en el dicc_registers
 
