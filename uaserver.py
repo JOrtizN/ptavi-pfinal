@@ -20,8 +20,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
         for line in self.rfile:
             llega = line.decode('utf-8').split(" ")
             method = llega[0]
-            #IP = self.client_address[0]
-            #PORT = self.client_address[1]
+            IP = self.client_address[0]
+            PORT = int(self.client_address[1])
 
             try:
                 arroba = llega[1].find("@") == -1
@@ -41,11 +41,6 @@ class EchoHandler(socketserver.DatagramRequestHandler):
 
                 if method == "INVITE":
                     print("El cliente nos manda: " + line.decode('utf-8'))
-                    #with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
-                    #    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    #    IPC = (Config['regproxy_ip'])
-                    #    PORTC = int(Config['regproxy_puerto'])
-                    #    my_socket.connect((IPC, PORTC))
                     self.wfile.write(b"SIP/2.0 100 Trying\r\n\r\n")
                     self.wfile.write(b"SIP/2.0 180 Ringing\r\n\r\n")
                     self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
@@ -60,7 +55,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
 
                 elif method == "ACK":
                     print("El cliente nos manda " + line.decode('utf-8'))
-                    aEjecutar = 'mp32rtp -i 127.0.0.1 -p 23032 < ' + fich_audio
+                    fich_audio = Config['audio_path']
+                    aEjecutar = 'mp32rtp -i ' + IP + ' -p ' + str(PORT) +' < ' + fich_audio
                     print("Vamos a ejecutar", aEjecutar)
                     os.system(aEjecutar)
                     print("Cancion enviada")

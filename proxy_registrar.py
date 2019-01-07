@@ -100,34 +100,47 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         else:
                             pass
         elif mensaje[0] == "INVITE":
-            #comprueba si opc esta en los registrados
-            #print(mensaje[1].split(":")[1], self.dicc_registers)
-            #inviteds = []
             #self.inviteds.append(mensaje[1].split(":")[1])
             #print(self.inviteds)
             user = mensaje[1].split(":")[1]
-            #port = mensaje[1].split(":")[2]
             if user in self.dicc_registers:
-                #mandar mensaje tal cual a server
-                print(self.dicc_registers[user], line)
+                #print(self.dicc_registers[user], line)
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     IP = (self.dicc_registers[user][0])
                     PORT = int(self.dicc_registers[user][1])
-                    print(IP, PORT)
                     my_socket.connect((IP, PORT))
-                    #print("BIEN")
                     my_socket.send(line)
                     print("envidado a server")
-                #except:
-                #    print("no manda al server")
-
+                    try:
+                        reciv = my_socket.recv(1024)
+                        r_dec = reciv.decode('utf-8').split()
+                        print(r_dec)
+                        if r_dec[1] and "100" and r_dec[4] == "180" and r_dec[7] == "200":
+                            print("si que llega")
+                            self.wfile.write(reciv)
+                    except:
+                        print("no escucha")
                     #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         elif mensaje[0] == "BYE":
             self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         #print("Registro de clientes:", self.dicc_registers)
-        #elif mensaje[1] and "100" and mensaje[4] == "180" and mensaje[7] == "200":
-        #    print(IP, PORT)
+        elif mensaje[0] == "ACK":
+            user = mensaje[1].split(":")[1]
+            print("ACK hacer lo que invite!!")
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+                my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                IP = (self.dicc_registers[user][0])
+                PORT = int(self.dicc_registers[user][1])
+                my_socket.connect((IP, PORT))
+                my_socket.send(line)
+                try:
+                    reciv = my_socket.recv(1024)
+                    r_dec = reciv.decode('utf-8').split()
+                    print(reciv)
+                    self.wfile.write(reciv)
+                except:
+                    print("no escucha")
         print("Registro de clientes:", self.dicc_registers)
 
 
