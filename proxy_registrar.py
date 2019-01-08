@@ -41,8 +41,10 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         if not line:
             pass
         mensaje.append(line.decode('utf-8'))
+        lines = " ".join(mensaje)
         mensaje = " ".join(mensaje).split()
-        print("LLEGA:", mensaje)
+        print("STR¿?¿?¿?¿?LINES", lines)
+        print("LLEGA:", mensaje, len(mensaje))
         if (mensaje[0] != "REGISTER" and mensaje[0] != "INVITE" and mensaje[0] != "BYE"):
             self.wfile.write(b"Solo contemplamos la opcion REGISTER e INVITE")
             #print("MENSAJE", mensaje)
@@ -50,8 +52,8 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             ip = mensaje[1].split(":")[1]
             port = mensaje[1].split(":")[2]
             self.json2registered()
-            #print("ver longitud:", mensaje, len(mensaje))
-            if len(mensaje) == 4:
+            print("ver longitud:", mensaje, len(mensaje))
+            if len(mensaje) == 6:
                 nonce = random.randint(0,10**15)
                 if ip in self.dicc_users:
                     print("Usuario en clientes")
@@ -93,7 +95,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         self.register2json()
                     except IndexError:
                         pass
-                    if (mensaje[2] == '0'):
+                    if (mensaje[4] == '0'):
                         #print("CERO!BORRA")
                         if ip in self.dicc_registers:
                             del self.dicc_registers[ip]
@@ -110,8 +112,8 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     IP = (self.dicc_registers[user][0])
                     PORT = int(self.dicc_registers[user][1])
                     my_socket.connect((IP, PORT))
-                    my_socket.send(line)
-                    print("envidado a server")
+                    my_socket.send(bytes(line.decode('utf-8'), 'utf-8'))
+                    print("envidado a server", line.decode('utf-8'))
                     try:
                         reciv = my_socket.recv(1024)
                         r_dec = reciv.decode('utf-8').split()

@@ -35,8 +35,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         S_PORT = str(Config['uaserver_puerto'])
         PSW = (Config['account_passwd'])
         my_socket.connect((IP, PORT))
-        my_socket.send(bytes(METHOD + " sip:" + USER + ":" + S_PORT + " "
-                       + opc + " SIP/2.0", 'utf-8') + b'\r\n\r\n')
+        my_socket.send(bytes(METHOD + " sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n" + "Expires: "
+                       + opc + " SIP/2.0\r\n", 'utf-8') + b'\r\n\r\n')
         data = my_socket.recv(1024).decode('utf-8')
         print(data,"meter en el log esto que hago")
         #autenticacion!!!
@@ -48,8 +48,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             nonce = r_dec[-1].split("=")[-1].split("\"")[1]
             h.update(bytes(PSW, 'utf-8'))
             h.update(bytes(nonce, 'utf-8'))
-            sm_nonce = ("REGISTER sip:" + USER + ":" + S_PORT + " " + opc +
-                        " SIP/2.0 " + "Authorization: " +
+            sm_nonce = (METHOD +" sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n" + "Expires: " + opc +
+                        " SIP/2.0\r\n" + "Authorization: " +
                         "Digest responde=\"" + h.hexdigest() + "\"")
             my_socket.send(bytes(sm_nonce, 'utf-8') + b'\r\n\r\n')
 
@@ -77,6 +77,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                 print("Send ACK, if you have to wait your request is okey")
                 my_socket.send(bytes("ACK" + " sip:" + opc +
                             " SIP/2.0", 'utf-8') + b'\r\n\r\n')
+                f_audio = Config['audio_path']
+                ap = str(r_dec[-2])
+                aip = r_dec[13]
+                print(f_audio, ap, aip)
+                aEjecutar = 'mp32rtp -i ' + aip + ' -p ' + ap +' < ' + f_audio
+                print("Vamos a ejecutar", aEjecutar)
+                os.system(aEjecutar)
+                print("Cancion enviada")
                 reciv = my_socket.recv(1024)
                 r_dec = reciv.decode('utf-8').split()
                 try:
