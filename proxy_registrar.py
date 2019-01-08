@@ -66,6 +66,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
             else:
                 if ip in self.dicc_users:
+                    self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
                     self.dicc_registers[ip] = [IP, port]
                     try:
                         psw = mensaje[-1].split("=")[-1]
