@@ -51,7 +51,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                                      "s=PracticaFinal" + "t=0\r\n" + "m=audio "
                                      + Config['rtpaudio_puerto'] + " RTP\r\n"),
                                      "utf-8"))
-                    print("Se supone todo enviado")
+                    #print("Se supone todo enviado")
 
                 elif method == "ACK":
                     print("El cliente nos manda " + line.decode('utf-8'))
@@ -62,7 +62,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                     print("Cancion enviada")
 
                 elif method == "BYE":
-                    print("El cliente nos manda " + line.decode('utf-8'))
+                    print("El cliente se despide: " + line.decode('utf-8'))
                     self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
 
             else:

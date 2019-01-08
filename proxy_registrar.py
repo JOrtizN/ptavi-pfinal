@@ -121,10 +121,31 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                             self.wfile.write(reciv)
                     except:
                         print("no escucha")
+                #del self.dicc_registers[user]
                     #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         elif mensaje[0] == "BYE":
-            self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
-        #print("Registro de clientes:", self.dicc_registers)
+            #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
+            user = mensaje[1].split(":")[1]
+            if user in self.dicc_registers:
+                #print(self.dicc_registers[user], line)
+                with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+                    my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                    IP = (self.dicc_registers[user][0])
+                    PORT = int(self.dicc_registers[user][1])
+                    my_socket.connect((IP, PORT))
+                    my_socket.send(line)
+                    print("envidado a server")
+                    try:
+                        reciv = my_socket.recv(1024)
+                        r_dec = reciv.decode('utf-8').split()
+                        print(r_dec)
+                        if r_dec[1] == "200":
+                            print("si que llega")
+                            self.wfile.write(reciv)
+                            #del self.dicc_registers[user]
+                    except:
+                        print("no escucha")
+                #print("Registro de clientes:", self.dicc_registers)
         elif mensaje[0] == "ACK":
             user = mensaje[1].split(":")[1]
             print("ACK hacer lo que invite!!")
@@ -137,7 +158,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 try:
                     reciv = my_socket.recv(1024)
                     r_dec = reciv.decode('utf-8').split()
-                    print(reciv)
+                    #print(reciv)
                     self.wfile.write(reciv)
                 except:
                     print("no escucha")
