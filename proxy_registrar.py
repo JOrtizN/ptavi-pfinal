@@ -43,10 +43,10 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         mensaje.append(line.decode('utf-8'))
         lines = " ".join(mensaje)
         mensaje = " ".join(mensaje).split()
-        print("STR¿?¿?¿?¿?LINES", lines)
-        print("LLEGA:", mensaje, len(mensaje))
+        #print("STR¿?¿?¿?¿?LINES", lines)
+        #print("LLEGA:", mensaje, len(mensaje))
         if (mensaje[0] != "REGISTER" and mensaje[0] != "INVITE" and mensaje[0] != "BYE"):
-            self.wfile.write(b"Solo contemplamos la opcion REGISTER e INVITE")
+            self.wfile.write(b"Solo contemplamos la opcion REGISTER, INVITE y BYE")
             #print("MENSAJE", mensaje)
         if mensaje[0] == "REGISTER":
             ip = mensaje[1].split(":")[1]
@@ -134,10 +134,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         reciv = my_socket.recv(1024)
                         r_dec = reciv.decode('utf-8').split()
                         data = reciv.decode('utf-8')
-                        sHandler.fich_log(Log, "Received", line, IP, PORT)
+                        #sHandler.fich_log(Log, "Received", data, IP, PORT)
                         #LOG Received client_address
                         print(r_dec)
                         if r_dec[1] and "100" and r_dec[4] == "180" and r_dec[7] == "200":
+                            sHandler.fich_log(Log, "Received", data, IP, PORT)
                             print("si que llega")
                             self.wfile.write(reciv)
                             #LOG Sent client_address
@@ -189,6 +190,9 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         elif mensaje[0] == "ACK":
             user = mensaje[1].split(":")[1]
             #LOG Received client_address
+            print("LNE!", line)
+            data = line.decode('utf-8')
+            print(data)
             sHandler.fich_log(Log, "Received", data, IP, PORT)
             print("ACK hacer lo que invite!!")
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
@@ -198,18 +202,8 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 my_socket.connect((SIP, SPORT))
                 my_socket.send(line)
                 #LOG SENT xml
-                sHandler.fich_log(Log, "Sent", line, SIP, SPORT)
-                try:
-                    reciv = my_socket.recv(1024)
-                    r_dec = reciv.decode('utf-8').split()
-                    data = reciv.decode('utf-8')
-                    #LOG Received client_address
-                    sHandler.fich_log(Log, "Received", data, IP, PORT)
-                    self.wfile.write(reciv)
-                    #LOG sent client_address
-                    sHandler.fich_log(Log, "Sent", data, IP, PORT)
-                except:
-                    print("no escucha")
+                sHandler.fich_log(Log, "Sent", lines, SIP, SPORT)
+
         print("Registro de clientes:", self.dicc_registers)
 
 
