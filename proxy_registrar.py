@@ -128,7 +128,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     enviar = line.decode('utf-8')
                     my_socket.send(bytes(enviar, 'utf-8'))
                     #LOG SENT ip port xml
-                    sHandler.fich_log(Log, "Received", enviar, SIP, SPORT)
+                    sHandler.fich_log(Log, "Sent", enviar, SIP, SPORT)
                     print("envidado a server", line.decode('utf-8'))
                     try:
                         reciv = my_socket.recv(1024)

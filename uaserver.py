@@ -51,10 +51,10 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                           "SIP/2.0 180 Ringing\r\n\r\n" +
                           "SIP/2.0 200 OK\r\n\r\n" +
                           "v=0\r\n" + "o=" + Config['account_username'] + " " +
-                          Config['uaserver_ip']+ "\r\n" + "s=PracticaFinal\r\n" +
-                          "t=0\r\n" + "m=audio " + Config['rtpaudio_puerto'] +
+                          Config['uaserver_ip']+ "\r\n" + "s=PracticaFinal\r\n"
+                          + "t=0\r\n" + "m=audio " + Config['rtpaudio_puerto'] +
                           " RTP\r\n")
-            
+
                 self.wfile.write(bytes(enviar, 'utf-8'))
                 #log: sent to (IP, PORT) proxy
                 sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
