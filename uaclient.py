@@ -84,7 +84,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         AUDIO_PORT = Config['rtpaudio_puerto']
         my_socket.connect((IP, PORT))
         before = (METHOD + " sip:" + opc + " SIP/2.0\r\n" +
-                  "Content-Type: application/sdp\r\n")
+                  "Content-Type: application/sdp\r\n\r\n")
         enviar = (before + "v=0\r\n" + "o=" + USER + " " + S_IP + "\r\n" +
                   "s=PracticaFinal\r\n" + "t=0\r\n" + "m=audio " + AUDIO_PORT +
                   " RTP\r\n")
