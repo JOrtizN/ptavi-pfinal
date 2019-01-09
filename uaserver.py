@@ -46,7 +46,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
             if method == "INVITE":
                 print("El cliente nos manda: " + line.decode('utf-8'))
                 #log: Received from proxy IP , PORT
-                sHandler.fich_log(Log, "Received", data, IP, PORT)
+                #sHandler.fich_log(Log, "Received", data, IP, PORT)
                 enviar = ("SIP/2.0 100 Trying\r\n\r\n" +
                           "SIP/2.0 180 Ringing\r\n\r\n" +
                           "SIP/2.0 200 OK\r\n\r\n" +
@@ -69,7 +69,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
             elif method == "ACK":
                 print("El cliente nos manda " + line.decode('utf-8'))
                 #log: Received from (IP, PORT)proxy
-                sHandler.fich_log(Log, "Received", data, IP, PORT)
+                #sHandler.fich_log(Log, "Received", data, IP, PORT)
                 f_audio = Config['audio_path']
                 user = mensaje[1].split(":")[1]
                 p = self.inviteds[user][1]
@@ -84,7 +84,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
             elif method == "BYE":
                 print("El cliente se despide: " + line.decode('utf-8'))
                 #log: Received from (IP, PORT)proxy
-                sHandler.fich_log(Log, "Received", data, IP, PORT)
+                #sHandler.fich_log(Log, "Received", data, IP, PORT)
                 self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
                 #log: sen to proxy
                 sHandler.fich_log(Log, "Sent", "SIP/2.0 200 OK ", IP, PORT)
