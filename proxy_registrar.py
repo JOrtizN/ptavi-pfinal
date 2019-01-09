@@ -144,6 +144,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                             sHandler.fich_log(Log, "Sent", data, IP, PORT)
                     except:
                         print("no escucha")
+            else:
+                self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
+                error = "SIP/2.0 404 User Not Found\r\n\r\n"
+                sHandler.fich_log(Log, "Sent", error, IP, PORT)
+                sHandler.fich_log(Log, "Error", error, IP, PORT)
                 #del self.dicc_registers[user]
                     #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
         elif mensaje[0] == "BYE":
