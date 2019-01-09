@@ -102,13 +102,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                 del_registers.append(register)
                         for register in del_registers:
                             del self.dicc_registers[register]
-                        self.register2json()
+
                     except IndexError:
                         pass
                     if (mensaje[4] == '0'):
                         #print("CERO!BORRA")
                         if ip in self.dicc_registers:
                             del self.dicc_registers[ip]
+                            self.register2json()
                         else:
                             pass
         elif mensaje[0] == "INVITE":
