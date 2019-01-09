@@ -23,6 +23,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
         if not line:
             pass
         mensaje.append(line.decode('utf-8'))
+        data = " ".join(mensaje)
         mensaje = " ".join(mensaje).split()
         print("A VER!", mensaje, "MENSAJE", len(mensaje))
         method = mensaje[0]
@@ -31,24 +32,32 @@ class EchoHandler(socketserver.DatagramRequestHandler):
         arroba = mensaje[1].find("@") != -1
         fsip = str(mensaje[1].split(":")[0]) == "sip"
         lsip = str(mensaje[2]) == "SIP/2.0"
-
+        #log: recibed from proxy (IP, PORT) line.decode('utf-8')
+        sHandler.fich_log(Log, "Received", data, IP, PORT)
 
         if fsip and arroba and lsip :
             if method not in ['INVITE', 'BYE', 'ACK']:
                 self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n')
+                error = 'SIP/2.0 405 Method Not Allowed\r\n'
+                sHandler.fich_log(Log, "Error", error, IP, PORT)
+                sHandler.fich_log(Log, "Sent", error, IP, PORT)
+                #log: Send to IP PORT proxy
 
             if method == "INVITE":
                 print("El cliente nos manda: " + line.decode('utf-8'))
-                self.wfile.write(b"SIP/2.0 100 Trying\r\n\r\n")
-                self.wfile.write(b"SIP/2.0 180 Ringing\r\n\r\n")
-                self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
-                self.wfile.write(b"Content-Type: application/sdp\r\n\r\n")
-                self.wfile.write(bytes(("v=0\r\n" + "o=" +
-                                 Config['account_username'] + " " +
-                                 Config['uaserver_ip']+ "\r\n" +
-                                 "s=PracticaFinal " + "t=0\r\n" + "m=audio "
-                                 + Config['rtpaudio_puerto'] + " RTP\r\n"),
-                                 "utf-8"))
+                #log: Received from proxy IP , PORT
+                sHandler.fich_log(Log, "Received", data, IP, PORT)
+                enviar = ("SIP/2.0 100 Trying\r\n\r\n" +
+                          "SIP/2.0 180 Ringing\r\n\r\n" +
+                          "SIP/2.0 200 OK\r\n\r\n" +
+                          "v=0\r\n" + "o=" + Config['account_username'] + " " +
+                          Config['uaserver_ip']+ "\r\n" + "s=PracticaFinal\r\n" +
+                          "t=0\r\n" + "m=audio " + Config['rtpaudio_puerto'] +
+                          " RTP\r\n")
+            
+                self.wfile.write(bytes(enviar, 'utf-8'))
+                #log: sent to (IP, PORT) proxy
+                sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
                 user = mensaje[1].split(":")[1]
                 ap = str(mensaje[-2])
                 aip = mensaje[7]
@@ -59,6 +68,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 print("Se supone todo enviado")
             elif method == "ACK":
                 print("El cliente nos manda " + line.decode('utf-8'))
+                #log: Received from (IP, PORT)proxy
+                sHandler.fich_log(Log, "Received", data, IP, PORT)
                 f_audio = Config['audio_path']
                 user = mensaje[1].split(":")[1]
                 p = self.inviteds[user][1]
@@ -66,17 +77,25 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 aEjecutar = 'mp32rtp -i ' + ip + ' -p ' + p +' < ' + f_audio
                 print("Vamos a ejecutar", aEjecutar)
                 os.system(aEjecutar)
+                #log: (ip, p) server otro ua
+                sHandler.fich_log(Log, "Sent", aEjecutar, ip, p)
                 print("Cancion enviada")
 
             elif method == "BYE":
                 print("El cliente se despide: " + line.decode('utf-8'))
+                #log: Received from (IP, PORT)proxy
+                sHandler.fich_log(Log, "Received", data, IP, PORT)
                 self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
-                #else:
-                #    print("CANCION: ", llega)
+                #log: sen to proxy
+                sHandler.fich_log(Log, "Sent", "SIP/2.0 200 OK ", IP, PORT)
 
         else:
             print("SIP/2.0 400 Bad Request\r\n\r\n")
+            error = "SIP/2.0 400 Bad Request "
             self.wfile.write(b"SIP/2.0 400 Bad Request\r\n\r\n")
+            sHandler.fich_log(Log, "Error", error, IP, PORT)
+            sHandler.fich_log(Log, "Sent", error, IP, PORT)
+            #log: ERROR + sen to proxyIP PORT
 
 
 
@@ -92,12 +111,15 @@ if __name__ == "__main__":
     parser.setContentHandler(sHandler)
     parser.parse(open(UA))
     Config = sHandler.get_tags()
+    Log = Config["log_path"]
     IP = Config['uaserver_ip']
     PORT = int(Config['uaserver_puerto'])
     serv = socketserver.UDPServer((IP, PORT), EchoHandler)
 
+    sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
     print("Listening...")
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
+        sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
         print("END SERVER")

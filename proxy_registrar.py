@@ -53,6 +53,9 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             port = mensaje[1].split(":")[2]
             self.json2registered()
             print("ver longitud:", mensaje, len(mensaje))
+            #LOG Received client_address lines
+            data = line.decode('utf-8')
+            sHandler.fich_log(Log, "Received", data, IP, PORT)
             if len(mensaje) == 6:
                 nonce = random.randint(0,10**15)
                 if ip in self.dicc_users:
@@ -60,13 +63,20 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     #self.dicc_registers[ip] = [IP, PORT]
                     send_nonce = ("SIP/2.0 401 Unauthorized " + "WWW Authenticate: Digest nonce=\"" + str(nonce) + "\"\r\n")
                     self.wfile.write(bytes(send_nonce,'utf-8'))
+                    #LOG Sent client_address
+                    sHandler.fich_log(Log, "Sent", send_nonce, IP, PORT)
 
                 else:
                     print("Usuario no encontrado")
                     self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
+                    #LOG Sent client_address
+                    enviar = "SIP/2.0 404 User Not Found "
+                    sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
             else:
                 if ip in self.dicc_users:
                     self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
+                    #LOG Sent client_address
+                    sHandler.fich_log(Log, "Sent", "SIP/2.0 200 OK ", IP, PORT)
                     self.dicc_registers[ip] = [IP, port]
                     try:
                         psw = mensaje[-1].split("=")[-1]
@@ -83,8 +93,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                             now_date = time.strftime('%Y-%m-%d %H:%M:%S',
                                                      time.gmtime(time.time()))
                             self.dicc_registers[ip].append(reg_date)
-                            self.register2json()
-
+                        self.register2json()
                         del_registers = []
                         now = time.strftime('%Y-%m-%d %H:%M:%S',
                                             time.gmtime(time.time()))
@@ -105,23 +114,33 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         elif mensaje[0] == "INVITE":
             #self.inviteds.append(mensaje[1].split(":")[1])
             #print(self.inviteds)
+            #LOG Received client_address
+            sHandler.fich_log(Log, "Received", lines, IP, PORT)
             user = mensaje[1].split(":")[1]
             if user in self.dicc_registers:
                 #print(self.dicc_registers[user], line)
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    IP = (self.dicc_registers[user][0])
-                    PORT = int(self.dicc_registers[user][1])
-                    my_socket.connect((IP, PORT))
-                    my_socket.send(bytes(line.decode('utf-8'), 'utf-8'))
+                    SIP = (self.dicc_registers[user][0])
+                    SPORT = int(self.dicc_registers[user][1])
+                    my_socket.connect((SIP, SPORT))
+                    enviar = line.decode('utf-8')
+                    my_socket.send(bytes(enviar, 'utf-8'))
+                    #LOG SENT ip port xml
+                    sHandler.fich_log(Log, "Received", enviar, SIP, SPORT)
                     print("envidado a server", line.decode('utf-8'))
                     try:
                         reciv = my_socket.recv(1024)
                         r_dec = reciv.decode('utf-8').split()
+                        data = reciv.decode('utf-8')
+                        sHandler.fich_log(Log, "Received", line, IP, PORT)
+                        #LOG Received client_address
                         print(r_dec)
                         if r_dec[1] and "100" and r_dec[4] == "180" and r_dec[7] == "200":
                             print("si que llega")
                             self.wfile.write(reciv)
+                            #LOG Sent client_address
+                            sHandler.fich_log(Log, "Sent", data, IP, PORT)
                     except:
                         print("no escucha")
                 #del self.dicc_registers[user]
@@ -129,40 +148,60 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         elif mensaje[0] == "BYE":
             #self.wfile.write(b"SIP/2.0 200 OK\r\n\r\n")
             user = mensaje[1].split(":")[1]
+            #LOG Received client_address
+            data = line.decode('utf-8')
+            sHandler.fich_log(Log, "Received", data, IP, PORT)
             if user in self.dicc_registers:
                 #print(self.dicc_registers[user], line)
                 with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                    IP = (self.dicc_registers[user][0])
-                    PORT = int(self.dicc_registers[user][1])
-                    my_socket.connect((IP, PORT))
+                    SIP = (self.dicc_registers[user][0])
+                    SPORT = int(self.dicc_registers[user][1])
+                    my_socket.connect((SIP, SPORT))
                     my_socket.send(line)
+                    #LOG Sent xml
+                    sHandler.fich_log(Log, "Sent", data, SIP, SPORT)
                     print("envidado a server")
                     try:
                         reciv = my_socket.recv(1024)
                         r_dec = reciv.decode('utf-8').split()
+                        data = reciv.decode('utf-8')
+                        #LOG Received client_address
+                        sHandler.fich_log(Log, "Received", data, IP, PORT)
                         print(r_dec)
                         if r_dec[1] == "200":
+                            #log Received
+                            sHandler.fich_log(Log, "Received", data, IP, PORT)
                             print("si que llega")
                             self.wfile.write(reciv)
+                            #LOG Sent client_address
+                            sHandler.fich_log(Log, "Sent", data, IP, PORT)
                             #del self.dicc_registers[user]
                     except:
                         print("no escucha")
                 #print("Registro de clientes:", self.dicc_registers)
         elif mensaje[0] == "ACK":
             user = mensaje[1].split(":")[1]
+            #LOG Received client_address
+            sHandler.fich_log(Log, "Received", data, IP, PORT)
             print("ACK hacer lo que invite!!")
             with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-                IP = (self.dicc_registers[user][0])
-                PORT = int(self.dicc_registers[user][1])
-                my_socket.connect((IP, PORT))
+                SIP = (self.dicc_registers[user][0])
+                SPORT = int(self.dicc_registers[user][1])
+                my_socket.connect((SIP, SPORT))
                 my_socket.send(line)
+                #LOG SENT xml
+                sHandler.fich_log(Log, "Sent", line, SIP, SPORT)
                 try:
                     reciv = my_socket.recv(1024)
                     r_dec = reciv.decode('utf-8').split()
-                    #print(reciv)
+                    data = reciv.decode('utf-8')
+                    #LOG Received client_address
+                    sHandler.fich_log(Log, "Received", data, IP, PORT)
                     self.wfile.write(reciv)
+                    #LOG sent client_address
+                    sHandler.fich_log(Log, "Sent", data, IP, PORT)
                 except:
                     print("no escucha")
         print("Registro de clientes:", self.dicc_registers)
@@ -184,12 +223,15 @@ if __name__ == "__main__":
     parser.setContentHandler(sHandler)
     parser.parse(open(UA))
     Config = sHandler.get_tags()
+    Log = Config["log_path"]
     IP = Config['server_ip']
     PORT = int(Config['server_puerto'])
     serv = socketserver.UDPServer((IP, PORT), SIPRegisterHandler)
-
+    #LOG! start
+    sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
     print("Lanzando servidor UDP de eco...")
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
-        print
+        #LOG Finishing
+        sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
