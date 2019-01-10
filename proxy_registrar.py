@@ -58,23 +58,23 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             ip = mensaje[1].split(":")[1]
             port = mensaje[1].split(":")[2]
             self.json2registered()
-            print("ver longitud:", mensaje, len(mensaje))
+            print("ver longitud:", lines, len(mensaje))
             #LOG Received client_address lines
             data = line.decode('utf-8')
             sHandler.fich_log(Log, "Received", data, IP, PORT)
             if ip in self.dicc_users:
-                if len(mensaje) == 6:
+                if len(mensaje) == 5:
                     nonce = random.randint(0,10**15)
                     print("Usuario en clientes")
                     #self.dicc_registers[ip] = [IP, PORT]
-                    send_nonce = ("SIP/2.0 401 Unauthorized " +
+                    send_nonce = ("SIP/2.0 401 Unauthorized\r\n\r\n" +
                                   "WWW Authenticate: Digest nonce=\"" +
-                                  str(nonce) + "\"\r\n")
-                    self.wfile.write(bytes(send_nonce,'utf-8'))
+                                  str(nonce) + "\"")
+                    self.wfile.write(bytes(send_nonce,'utf-8') + b'\r\n\r\n')
                     #LOG Sent client_address
                     sHandler.fich_log(Log, "Sent", send_nonce, IP, PORT)
 
-                if len(mensaje) == 9:#if ip in self.dicc_users:
+                if len(mensaje) == 8:#if ip in self.dicc_users:
                     self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
                     #LOG Sent client_address
                     sHandler.fich_log(Log, "Sent", "SIP/2.0 200 OK ", IP, PORT)

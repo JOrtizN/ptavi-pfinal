@@ -38,8 +38,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
         if fsip and arroba and lsip :
             if method not in ['INVITE', 'BYE', 'ACK']:
                 print('SIP/2.0 405 Method Not Allowed:', method)
-                self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n')
-                error = 'SIP/2.0 405 Method Not Allowed\r\n'
+                self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n\r\n')
+                error = 'SIP/2.0 405 Method Not Allowed'
                 sHandler.fich_log(Log, "Error", error, IP, PORT)
                 sHandler.fich_log(Log, "Sent", error, IP, PORT)
                 #log: Send to IP PORT proxy

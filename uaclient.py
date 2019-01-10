@@ -39,16 +39,17 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
 
     try:
         my_socket.connect((IP, PORT))
-        sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
+        #sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
     except ConnectionRefusedError:
         sHandler.fich_log(Log, "Error", "ConnectionRefusedError", IP, PORT)
         sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
 
     if METHOD == "REGISTER":
         print("reerer")
-        enviar = (METHOD + " sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n"
-                  + "Expires: " + opc + " SIP/2.0\r\n")
+        enviar = (METHOD + " sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n\r\n"
+                  + "Expires: " + opc)
         my_socket.send(bytes(enviar, 'utf-8') + b'\r\n\r\n')
+        #sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
         sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
         data = my_socket.recv(1024).decode('utf-8')
         #log: Received from (IP, PORT)proxy
@@ -63,8 +64,8 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             nonce = r_dec[-1].split("=")[-1].split("\"")[1]
             h.update(bytes(PSW, 'utf-8'))
             h.update(bytes(nonce, 'utf-8'))
-            sm_nonce = (METHOD +" sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n" +
-                        "Expires: " + opc + " SIP/2.0\r\n" + "Authorization: " +
+            sm_nonce = (METHOD +" sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n\r\n" +
+                        "Expires: " + opc + "\r\n" + "Authorization: " +
                         "Digest responde=\"" + h.hexdigest() + "\"")
             my_socket.send(bytes(sm_nonce, 'utf-8') + b'\r\n\r\n')
             sHandler.fich_log(Log, "Sent", sm_nonce, IP, PORT)
@@ -126,7 +127,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
 
     if METHOD == "BYE":
         print("Se quiere despedir")
-        enviar = METHOD + " sip:" + opc + " SIP/2.0\r\n"
+        enviar = METHOD + " sip:" + opc + " SIP/2.0\r\n\r\n"
         my_socket.send(bytes(enviar, 'utf-8'))
         sHandler.fich_log(Config["log_path"], "Sent", enviar, IP, PORT)
         reciv = my_socket.recv(1024)
