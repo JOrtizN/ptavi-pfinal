@@ -277,9 +277,11 @@ if __name__ == "__main__":
     serv = socketserver.UDPServer((IP, PORT), SIPRegisterHandler)
     # LOG! start
     sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
-    print("Lanzando servidor UDP de eco...")
+    fin = "Server proxy_registar listening at port " + str(PORT) + "..."
+    print(fin)
     try:
         serv.serve_forever()
     except KeyboardInterrupt:
         # LOG Finishing
+        sys.exit("Finishing server...")
         sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
