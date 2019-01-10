@@ -1,0 +1,62 @@
+20190110122003 Starting...
+20190110122003 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110122003 Error: ConnectionRefusedError
+20190110122003 Finishing.
+20190110122016 Starting...
+20190110122016 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110122016 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="195338784509422"  
+20190110122016 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600 Authorization: Digest responde="12872b2f7ef6ee74e8210f66d9172348"
+20190110122016 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
+20190110122032 Sent to 127.0.0.1:4321: INVITE sip:julia2@urjc.es SIP/2.0 Content-Type: application/sdp  v=0 o=julia1@urjc.es 127.0.0.1 s=PracticaFinal t=0 m=audio 1204 RTP 
+20190110122258 Received from 127.0.0.1:4321: 
+20190110122330 Starting...
+20190110122330 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110122330 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="710960861024624"  
+20190110122330 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600 Authorization: Digest responde="9cfa43e81f6b03d3ddd2af396c098c81"
+20190110122330 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
+20190110122334 Sent to 127.0.0.1:4321: INVITE sip:julia2@urjc.es SIP/2.0 Content-Type: application/sdp  v=0 o=julia1@urjc.es 127.0.0.1 s=PracticaFinal t=0 m=audio 1204 RTP 
+20190110122334 Received from 127.0.0.1:4321: SIP/2.0 100 Trying  SIP/2.0 180 Ringing  SIP/2.0 200 OK  v=0 o=julia2@urjc.es 127.0.0.1 s=PracticaFinal t=0 m=audio 1234 RTP 
+20190110122334 Sent to 127.0.0.1:4321: ACK sip:julia2@urjc.es SIP/2.0
+20190110122342 Sent to 127.0.0.1:1234: mp32rtp -i 127.0.0.1 -p 1234 < cancion.mp3
+20190110122352 Sent to 127.0.0.1:4321: BYE sip:julia2@urjc.es SIP/2.0  
+20190110122352 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
+20190110122413 Sent to 127.0.0.1:4321: BYE sip:julia2@urjc.es SIP/2.0  
+20190110122413 Received from 127.0.0.1:4321: 
+20190110122557 Starting...
+20190110122557 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110122557 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="155553003704052"  
+20190110122557 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600 Authorization: Digest responde="91a09f5ec2f956da774c35161dcc04a6"
+20190110122557 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
+20190110122606 Sent to 127.0.0.1:4321: INVITE sip:julia2@urjc.es SIP/2.0 Content-Type: application/sdp  v=0 o=julia1@urjc.es 127.0.0.1 s=PracticaFinal t=0 m=audio 1204 RTP 
+20190110122606 Received from 127.0.0.1:4321: 
+20190110122749 Starting...
+20190110122749 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110122749 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="879021035446882"  
+20190110122749 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600 Authorization: Digest responde="98443f85fee7ac5a6457560b9ab6e6ac"
+20190110122749 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
+20190110122753 Sent to 127.0.0.1:4321: INVITE sip:julia2@urjc.es SIP/2.0 Content-Type: application/sdp  v=0 o=julia1@urjc.es 127.0.0.1 s=PracticaFinal t=0 m=audio 1204 RTP 
+20190110122753 Received from 127.0.0.1:4321: 
+20190110123456 Sent to 127.0.0.1:4321: INVITE sip:julia2@urjc.es SIP/2.0 Content-Type: application/sdp  v=0 o=julia1@urjc.es 127.0.0.1 s=PracticaFinal t=0 m=audio 1204 RTP 
+20190110123456 Received from 127.0.0.1:4321: SIP/2.0 404 User Not Found  
+20190110123517 Starting...
+20190110123517 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110123517 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="219940660471455"  SIP/2.0 400 Bad Request  
+20190110123700 Starting...
+20190110123700 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110123700 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="407326703511956"  SIP/2.0 400 Bad Request  
+20190110123735 Starting...
+20190110123735 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110123735 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="997232998818786"  
+20190110123735 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600 Authorization: Digest responde="d59d2e74f2c6f52d4a1ef9c2c627f2cc"
+20190110123735 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
+20190110123816 Starting...
+20190110123816 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110123816 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="503155264396517"  SIP/2.0 400 Bad Request  
+20190110123853 Starting...
+20190110123853 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110123853 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="805853555374611"  SIP/2.0 400 Bad Request  
+20190110124059 Starting...
+20190110124059 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600
+20190110124059 Received from 127.0.0.1:4321: SIP/2.0 401 Unauthorized  WWW Authenticate: Digest nonce="305982339398644"  
+20190110124059 Sent to 127.0.0.1:4321: REGISTER sip:julia1@urjc.es:3421 SIP/2.0  Expires: 3600 Authorization: Digest responde="47934212409a771aa7465d54c7f46b22"
+20190110124059 Received from 127.0.0.1:4321: SIP/2.0 200 OK   
