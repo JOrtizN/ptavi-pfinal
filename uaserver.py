@@ -37,6 +37,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
 
         if fsip and arroba and lsip :
             if method not in ['INVITE', 'BYE', 'ACK']:
+                print('SIP/2.0 405 Method Not Allowed:', method)
                 self.wfile.write(b'SIP/2.0 405 Method Not Allowed\r\n')
                 error = 'SIP/2.0 405 Method Not Allowed\r\n'
                 sHandler.fich_log(Log, "Error", error, IP, PORT)

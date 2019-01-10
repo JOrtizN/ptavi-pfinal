@@ -45,9 +45,15 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         mensaje = " ".join(mensaje).split()
         #print("STR¿?¿?¿?¿?LINES", lines)
         #print("LLEGA:", mensaje, len(mensaje))
-        if (mensaje[0] != "REGISTER" and mensaje[0] != "INVITE" and mensaje[0] != "BYE"):
-            self.wfile.write(b"Solo contemplamos la opcion REGISTER, INVITE y BYE")
-            #print("MENSAJE", mensaje)
+        if (mensaje[0] != "REGISTER" and mensaje[0] != "INVITE" and mensaje[0]
+            != "BYE" and mensaje[0] != "SIP/2.0" and mensaje[0] != "ACK"):
+            self.wfile.write(b"SIP/2.0 405 Method Not Allowed\r\n\r\n")
+            print("SIP/2.0 405 Method Not Allowed")
+            enviar = "SIP/2.0 405 Method Not Allowed "
+            sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
+            sHandler.fich_log(Log, "Error", enviar, IP, PORT)
+            sys.exit(mensaje[0])
+           #break
         if mensaje[0] == "REGISTER":
             ip = mensaje[1].split(":")[1]
             port = mensaje[1].split(":")[2]
@@ -56,24 +62,19 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             #LOG Received client_address lines
             data = line.decode('utf-8')
             sHandler.fich_log(Log, "Received", data, IP, PORT)
-            if len(mensaje) == 6:
-                nonce = random.randint(0,10**15)
-                if ip in self.dicc_users:
+            if ip in self.dicc_users:
+                if len(mensaje) == 6:
+                    nonce = random.randint(0,10**15)
                     print("Usuario en clientes")
                     #self.dicc_registers[ip] = [IP, PORT]
-                    send_nonce = ("SIP/2.0 401 Unauthorized " + "WWW Authenticate: Digest nonce=\"" + str(nonce) + "\"\r\n")
+                    send_nonce = ("SIP/2.0 401 Unauthorized " +
+                                  "WWW Authenticate: Digest nonce=\"" +
+                                  str(nonce) + "\"\r\n")
                     self.wfile.write(bytes(send_nonce,'utf-8'))
                     #LOG Sent client_address
                     sHandler.fich_log(Log, "Sent", send_nonce, IP, PORT)
 
-                else:
-                    print("Usuario no encontrado")
-                    self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
-                    #LOG Sent client_address
-                    enviar = "SIP/2.0 404 User Not Found "
-                    sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
-            else:
-                if ip in self.dicc_users:
+                if len(mensaje) == 9:#if ip in self.dicc_users:
                     self.wfile.write(b"SIP/2.0 200 OK \r\n\r\n")
                     #LOG Sent client_address
                     sHandler.fich_log(Log, "Sent", "SIP/2.0 200 OK ", IP, PORT)
@@ -112,6 +113,20 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                             self.register2json()
                         else:
                             pass
+                #if len(mensaje) != 9 or len(mensaje) != 6:
+                #    print(mensaje, len(mensaje), "problema de formato BAD REQUEST")
+                #    self.wfile.write(b"SIP/2.0 400 Bad Request\r\n\r\n")
+                #    enviar = "SIP/2.0 400 Bad Request "
+                #    sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
+                #    sHandler.fich_log(Log, "Error", enviar, IP, PORT)
+            else:
+                print("Usuario no encontrado")
+                self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
+                #LOG Sent client_address
+                enviar = "SIP/2.0 404 User Not Found "
+                sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
+                sHandler.fich_log(Log, "Error", enviar, IP, PORT)
+
         elif mensaje[0] == "INVITE":
             #self.inviteds.append(mensaje[1].split(":")[1])
             #print(self.inviteds)
@@ -146,6 +161,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     except:
                         print("no escucha")
             else:
+                print("Usuario no encontrado")
                 self.wfile.write(b"SIP/2.0 404 User Not Found\r\n\r\n")
                 error = "SIP/2.0 404 User Not Found\r\n\r\n"
                 sHandler.fich_log(Log, "Sent", error, IP, PORT)
@@ -178,7 +194,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         print(r_dec)
                         if r_dec[1] == "200":
                             #log Received
-                            sHandler.fich_log(Log, "Received", data, IP, PORT)
+                            #sHandler.fich_log(Log, "Received", data, IP, PORT)
                             print("si que llega")
                             self.wfile.write(reciv)
                             #LOG Sent client_address
