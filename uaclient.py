@@ -95,9 +95,11 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                     ap = str(r_d[-2])
                     aip = r_d[11]
                     print(f_audio, ap, aip)
-                    aEjecutar = ('mp32rtp -i ' + aip + ' -p ' + ap + ' < '
+                    aEscuchar = "cvlc rtp://@" + aip + ":" + ap # + "2>/dev/null"
+                    aEjecutar = ('./mp32rtp -i ' + aip + ' -p ' + ap + ' < '
                                  + f_audio)
                     print("Vamos a ejecutar", aEjecutar)
+                    os.system(aEscuchar + "&")
                     os.system(aEjecutar)
                     sHandler.fich_log(Log, "Sent", aEjecutar, aip, ap)
                     print("Cancion enviada")

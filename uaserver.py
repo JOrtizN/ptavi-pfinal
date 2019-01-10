@@ -68,8 +68,10 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 user = mensaje[1].split(":")[1]
                 p = self.inviteds[user][1]
                 ip = self.inviteds[user][0]
-                aEjecutar = 'mp32rtp -i ' + ip + ' -p ' + p + ' < ' + f_audio
+                aEscuchar = "cvlc rtp://@" + ip + ":" + p # + "2>/dev/null"
+                aEjecutar = './mp32rtp -i ' + ip + ' -p ' + p + ' < ' + f_audio
                 print("Vamos a ejecutar", aEjecutar)
+                os.system(aEscuchar + "&")
                 os.system(aEjecutar)
                 sHandler.fich_log(Log, "Sent", aEjecutar, ip, p)
                 print("Cancion enviada")
