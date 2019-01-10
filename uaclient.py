@@ -43,6 +43,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
     except ConnectionRefusedError:
         sHandler.fich_log(Log, "Error", "ConnectionRefusedError", IP, PORT)
         sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
+        sys.exit("ConnectionRefusedError")
 
     if METHOD == "REGISTER":
         print("reerer")

@@ -113,7 +113,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                             self.register2json()
                         else:
                             pass
-                #if len(mensaje) != 9 or len(mensaje) != 6:
+                #if len(mensaje) != 5 or len(mensaje) != 8:
                 #    print(mensaje, len(mensaje), "problema de formato BAD REQUEST")
                 #    self.wfile.write(b"SIP/2.0 400 Bad Request\r\n\r\n")
                 #    enviar = "SIP/2.0 400 Bad Request "
@@ -139,7 +139,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     SIP = (self.dicc_registers[user][0])
                     SPORT = int(self.dicc_registers[user][1])
-                    my_socket.connect((SIP, SPORT))
+                    #my_socket.connect((SIP, SPORT))
+                    try:
+                        my_socket.connect((SIP, SPORT))
+                        #sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
+                    except ConnectionRefusedError:
+                        sHandler.fich_log(Log, "Error", "ConnectionRefusedError", IP, PORT)
+                        sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
+                        sys.exit("ConnectionRefusedError")
                     enviar = line.decode('utf-8')
                     my_socket.send(bytes(enviar, 'utf-8'))
                     #LOG SENT ip port xml
@@ -180,7 +187,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                     SIP = (self.dicc_registers[user][0])
                     SPORT = int(self.dicc_registers[user][1])
-                    my_socket.connect((SIP, SPORT))
+                    #my_socket.connect((SIP, SPORT))
+                    try:
+                        my_socket.connect((SIP, SPORT))
+                        #sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
+                    except ConnectionRefusedError:
+                        sHandler.fich_log(Log, "Error", "ConnectionRefusedError", IP, PORT)
+                        sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
+                        sys.exit("ConnectionRefusedError")
                     my_socket.send(line)
                     #LOG Sent xml
                     sHandler.fich_log(Log, "Sent", data, SIP, SPORT)
@@ -215,7 +229,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 SIP = (self.dicc_registers[user][0])
                 SPORT = int(self.dicc_registers[user][1])
-                my_socket.connect((SIP, SPORT))
+                #my_socket.connect((SIP, SPORT))
+                try:
+                    my_socket.connect((SIP, SPORT))
+                    #sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
+                except ConnectionRefusedError:
+                    sHandler.fich_log(Log, "Error", "ConnectionRefusedError", IP, PORT)
+                    sHandler.fich_log(Log, "Finishing", "Finishing", IP, PORT)
+                    sys.exit("ConnectionRefusedError")
                 my_socket.send(line)
                 #LOG SENT xml
                 sHandler.fich_log(Log, "Sent", lines, SIP, SPORT)
