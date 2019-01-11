@@ -1,7 +1,6 @@
 Notas:
 1- Para leer los xml y para los ficheros log yo tengo un programa diferente,
 en vez de ir implementado en el cliente, servidor o proxy, useragent.py
-2- En el avanzado que yo he hecho (Integración de (c)vlc) hay un comando
-para que no me imprima los errores pero si lo añadía no se escuchaba la canción.
-Por lo menos en el ordenador de los lab donde lo he probado.
-Y de hecho, en este ordenador, no imprimía ningun error.
+2- En el avanzado que yo he hecho (Integración de (c)vlc) hay un comando para que no me imprima los errores pero si lo añadía no se escuchaba la canción. Por lo menos en el ordenador de los lab donde lo he probado. Y de hecho, en este ordenador, no imprimía ningun error.
+3-He arreglado lo de la linea en blanco que he habaldo con gregorio en el examen. Aparecerá como fuera de tiempo pero gregorio me ha dicho que lo podia subir ahora.
+
