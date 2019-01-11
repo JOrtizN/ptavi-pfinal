@@ -67,8 +67,8 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     nonce = random.randint(0, 10**15)
                     print("Usuario en clientes")
                     # self.dicc_registers[ip] = [IP, PORT]
-                    send_nonce = ("SIP/2.0 401 Unauthorized\r\n\r\n" +
-                                  "WWW Authenticate: Digest nonce=\"" +
+                    send_nonce = ("SIP/2.0 401 Unauthorized\r\n" +
+                                  "WWW-Authenticate: Digest nonce=\"" +
                                   str(nonce) + "\"")
                     self.wfile.write(bytes(send_nonce, 'utf-8') + b'\r\n\r\n')
                     # LOG Sent client_address

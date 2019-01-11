@@ -47,7 +47,8 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 server_ip = Config['uaserver_ip']
                 enviar = ("SIP/2.0 100 Trying\r\n\r\n" +
                           "SIP/2.0 180 Ringing\r\n\r\n" +
-                          "SIP/2.0 200 OK\r\n\r\n" +
+                          "SIP/2.0 200 OK\r\n" + "Content-Type: " +
+                          "application/sdp\r\n\r\n" +
                           "v=0\r\n" + "o=" + Config['account_username'] + " " +
                           server_ip + "\r\n" + "s=PracticaFinal\r\n"
                           + "t=0\r\n" + "m=audio " + Config['rtpaudio_puerto']
@@ -68,7 +69,7 @@ class EchoHandler(socketserver.DatagramRequestHandler):
                 user = mensaje[1].split(":")[1]
                 p = self.inviteds[user][1]
                 ip = self.inviteds[user][0]
-                aEscuchar = "cvlc rtp://@" + ip + ":" + p # + "2>/dev/null"
+                aEscuchar = "cvlc rtp://@" + ip + ":" + p
                 aEjecutar = './mp32rtp -i ' + ip + ' -p ' + p + ' < ' + f_audio
                 print("Vamos a ejecutar", aEjecutar)
                 os.system(aEscuchar + "&")

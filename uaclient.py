@@ -41,7 +41,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         if METHOD == "REGISTER":
             # print("reerer")
             enviar = (METHOD + " sip:" + USER + ":" + S_PORT + " SIP/2.0\r\n" +
-                      "\r\n" + "Expires: " + opc)
+                      "Expires: " + opc)
             my_socket.send(bytes(enviar, 'utf-8') + b'\r\n\r\n')
             if opc != 0:
                 sHandler.fich_log(Log, "Starting", "Starting", IP, PORT)
@@ -53,14 +53,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             print(data, "meter en el log esto que hago")
             r_dec = data.split()
             print(data.split())
-            if r_dec[1] == "401" and len(r_dec) == 7:
+            if r_dec[1] == "401" and len(r_dec) == 6:
                 print("HOLA")
                 h = hashlib.md5()
                 nonce = r_dec[-1].split("=")[-1].split("\"")[1]
                 h.update(bytes(PSW, 'utf-8'))
                 h.update(bytes(nonce, 'utf-8'))
                 sm_nonce = (METHOD + " sip:" + USER + ":" + S_PORT +
-                            " SIP/2.0\r\n\r\n" + "Expires: " + opc + "\r\n" +
+                            " SIP/2.0\r\n" + "Expires: " + opc + "\r\n" +
                             "Authorization: Digest responde=\"" + h.hexdigest()
                             + "\"")
                 my_socket.send(bytes(sm_nonce, 'utf-8') + b'\r\n\r\n')
@@ -91,11 +91,12 @@ with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
                                    " SIP/2.0", 'utf-8') + b'\r\n\r\n')
                     enviar = "ACK" + " sip:" + opc + " SIP/2.0"
                     sHandler.fich_log(Log, "Sent", enviar, IP, PORT)
+                    print(r_d)
                     f_audio = Config['audio_path']
                     ap = str(r_d[-2])
-                    aip = r_d[11]
+                    aip = r_d[13]
                     print(f_audio, ap, aip)
-                    aEscuchar = "cvlc rtp://@" + aip + ":" + ap # + "2>/dev/null"
+                    aEscuchar = "cvlc rtp://@" + aip + ":" + ap
                     aEjecutar = ('./mp32rtp -i ' + aip + ' -p ' + ap + ' < '
                                  + f_audio)
                     print("Vamos a ejecutar", aEjecutar)
